@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   web-deploy:
     name: Deploy Laravel Project via FTP
@@ -17,19 +18,22 @@ jobs:
         run: rm -rf .git
 
       - name: Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        uses: SamKirkland/FTP-Deploy-Action@4.0.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          server-dir: /
+          server-dir: /fishline.techvince.com/
           exclude: |
-            **/.git/**
-            **/.github/**
             **/node_modules/**
             **/.env
-            **/vendor/**
-            **/storage/**
-            **/bootstrap/cache/**
-            **/tests/**
+            vendor/*
+            resources/views/*
+            bootstrap/cache/*
+            public/*
+            tests/*
+            .git-ftp-*
+            *.md
+            composer.json
+            package.json
+            composer.lock
