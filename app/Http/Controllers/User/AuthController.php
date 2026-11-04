@@ -104,7 +104,7 @@ class AuthController extends Controller
             if($validator->fails()) throw new Exception($validator->errors()->first(),422);
             DB::beginTransaction();
 
-            // Generate the username here
+            // Generate the username here   
             $username = $this->generateUsername($request->full_name);
 
             $user = User::create([
@@ -194,6 +194,8 @@ class AuthController extends Controller
                     'apple_id' => $request->apple_id ?? null,
                     'facebook_id' => $request->facebook_id ?? null,
                     'fcm_token' => $request->fcm_token,
+                    'state' => $request->state ?? null ,
+                    'county' => $request->county ?? null,
                 ]);
                 UserPreference::create([
                     'user_id' => $user->id,
