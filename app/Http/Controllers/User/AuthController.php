@@ -195,6 +195,12 @@ class AuthController extends Controller
                     'facebook_id' => $request->facebook_id ?? null,
                     'fcm_token' => $request->fcm_token,
                 ]);
+                UserPreference::create([
+                    'user_id' => $user->id,
+                    'how_do_you_fish' => $request->how_do_you_fish ?? 'all',
+                    'measurement_unit' => $request->measurement_unit ?? 'imperial',
+                    'chase' => $request->chase ?? null,
+                ]);
             }
             $user->tokens()->delete();
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -206,6 +212,12 @@ class AuthController extends Controller
                 'apple_id' => $request->apple_id ?? null,
                 'facebook_id' => $request->facebook_id ?? null,
                 'last_login_at' => now(),
+            ]);
+
+            UserPreference::where('user_id', $user->id)->update([
+                'how_do_you_fish' => $request->how_do_you_fish ?? 'all',
+                'measurement_unit' => $request->measurement_unit ?? 'imperial',
+                'chase' => $request->chase ?? null,
             ]);
             DB::commit();
 
