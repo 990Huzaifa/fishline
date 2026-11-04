@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\UserPreference;
 use App\Services\EngagementTrackingService;
 use App\Services\MailingApiService;
 use Illuminate\Database\QueryException;
