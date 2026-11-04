@@ -82,6 +82,9 @@ class AuthController extends Controller
 
                 'state' => 'nullable|string',
                 'county' => 'nullable|string',
+                'how_do_you_fish' => 'nullable|in:saltwater,freshwater,icefishing,all',
+                'measurement_unit' => 'nullable|in:metric,imperial',
+                'chase' => 'nullable|array',
             ],[
                 'full_name.required' => 'Full name is required',
                 'email.required' => 'Email is required',
@@ -93,6 +96,9 @@ class AuthController extends Controller
 
                 'state.string' => 'State must be a string',
                 'county.string' => 'County must be a string',
+                'how_do_you_fish.in' => 'How do you fish must be a valid value',
+                'measurement_unit.in' => 'Measurement unit must be a valid value',
+                'chase.array' => 'Chase must be an array',
             ]);
             if($validator->fails()) throw new Exception($validator->errors()->first(),422);
             DB::beginTransaction();
@@ -111,6 +117,12 @@ class AuthController extends Controller
                 'listen_from' => $request->listen_from,
                 'state' => $request->state ?? null ,
                 'county' => $request->county ?? null,
+            ]);
+            UserPreference::create([
+                'user_id' => $user->id,
+                'how_do_you_fish' => $request->how_do_you_fish ?? 'all',
+                'measurement_unit' => $request->measurement_unit ?? 'imperial',
+                'chase' => $request->chase ?? null,
             ]);
             DB::commit();
 

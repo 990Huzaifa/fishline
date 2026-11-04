@@ -16,7 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->boolean('is_profile_public')->default(true);
+            $table->enum('hosw_do_you_fish', ['saltwater', 'freshwater','icefishing','all'])->nullable();
             $table->enum('measurement_unit', ['metric', 'imperial'])->default('imperial');
+            $table->json('chase')->nullable();
             $table->timestamps();
         });
     }
