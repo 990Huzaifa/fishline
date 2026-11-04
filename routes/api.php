@@ -68,7 +68,7 @@ Route::prefix('admin')->group(function () {
 });
 
 Route::get('leaderboard', [HomeController::class, 'leaderboard']);
-
+Route::post('signin-with-rackscore', [AuthController::class, 'signinWithRackscore']);   
 Route::get('delete-user-account', [AuthController::class, 'deleteUserAccount']);
 Route::middleware(['auth:sanctum'])->group(function () {
 
