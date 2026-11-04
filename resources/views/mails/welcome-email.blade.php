@@ -3,44 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Welcome to Fishline</title>
 </head>
-<body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;color:#222;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:24px 12px;">
+<body style="margin:0;padding:0;background:#eef3f6;font-family:Arial,Helvetica,sans-serif;color:#1a2b33;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#eef3f6;padding:28px 12px;">
         <tr>
             <td align="center">
-                <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:8px;padding:32px 24px;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;">
                     <tr>
-                        <td align="center" style="padding-bottom:20px;">
+                        <td style="background:#0b4f6c;padding:28px 24px;text-align:center;">
                             @if(!empty($logoUrl))
-                                <img src="{{ $logoUrl }}" alt="{{ $appName ?? 'App' }}" style="max-height:48px;">
+                                <img src="{{ $logoUrl }}" alt="Fishline" style="max-height:48px;">
                             @else
-                                <strong style="font-size:20px;">{{ $appName ?? 'App' }}</strong>
+                                <strong style="font-size:24px;color:#ffffff;letter-spacing:0.5px;">Fishline</strong>
                             @endif
                         </td>
                     </tr>
                     <tr>
-                        <td style="font-size:16px;line-height:1.6;">
-                            <p style="margin:0 0 12px;">Hi {{ $name }},</p>
-                            <p style="margin:0 0 20px;">
-                                Welcome to {{ $appName ?? 'RackScore' }}! Your account is ready —
-                                start scoring racks and tracking your hunts.
+                        <td style="padding:36px 28px;font-size:16px;line-height:1.7;">
+                            <p style="margin:0 0 8px;font-size:22px;font-weight:bold;color:#0b4f6c;">
+                                Welcome aboard
                             </p>
-                            @if(!empty($appUrl))
-                                <p style="margin:0 0 24px;text-align:center;">
-                                    <a href="{{ $appUrl }}" style="display:inline-block;padding:12px 24px;background:#1a1a1a;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;">
-                                        Open App
-                                    </a>
-                                </p>
-                            @endif
-                            <p style="margin:0;color:#666;font-size:14px;">
-                                Glad to have you with us.
+                            <p style="margin:0 0 16px;">
+                                Hi {{ $name }},
+                            </p>
+                            <p style="margin:0 0 16px;">
+                                Welcome to <strong>Fishline</strong>. Your account is ready —
+                                we’re glad you’re here.
+                            </p>
+                            <p style="margin:0;color:#5a6b73;font-size:15px;">
+                                Cast a line, share your catches, and enjoy the water with us.
                             </p>
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding-top:28px;font-size:12px;color:#999;text-align:center;">
-                            &copy; {{ $year }} {{ $appName ?? 'App' }}
+                        <td style="padding:18px 28px 28px;font-size:12px;color:#8a9aa3;text-align:center;border-top:1px solid #e8eef2;">
+                            &copy; {{ $year }} Fishline
                         </td>
                     </tr>
                 </table>
