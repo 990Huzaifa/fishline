@@ -250,6 +250,82 @@ class AuthController extends Controller
         }
     }
 
+    public function signinWithRackscore(Request $request): JsonResponse
+    {
+        try{
+            $validator = Validator::make($request->all(), [
+                'token' => 'required|string',
+                'rackscore_id' => 'required|string',
+                'email' => 'nullable|email',
+                'full_name' => 'required',
+                'device_id' => 'required',
+                'listen_from' => 'required',
+
+                'state' => 'nullable|string',
+                'county' => 'nullable|string',
+                'how_do_you_fish' => 'nullable|in:saltwater,freshwater,icefishing,all',
+                'measurement_unit' => 'nullable|in:metric,imperial',
+                'chase' => 'nullable|array',
+            ],[
+                'token.required' => 'Token is required',
+                'token.string' => 'Token must be a string',
+                'rackscore_id.required' => 'Rackscore ID is required',
+                'rackscore_id.string' => 'Rackscore ID must be a string',
+                'email.email' => 'Invalid email format',
+                'full_name.required' => 'Full name is required',
+                'device_id.required' => 'Device ID is required',
+                'listen_from.required' => 'Listen from is required',
+                'state.string' => 'State must be a string',
+                'county.string' => 'County must be a string',
+                'how_do_you_fish.in' => 'How do you fish must be a valid value',
+                'measurement_unit.in' => 'Measurement unit must be a valid value',
+                'chase.array' => 'Chase must be an array',
+            ]);
+
+            if($validator->fails()) throw new Exception($validator->errors()->first(),422);
+
+            $user = User::where('rackscore_id', $request->rackscore_id)->first();
+            if(!$user){
+                $user = User::create([
+                    'rackscore_id' => $request->rackscore_id,
+                    'email' => $request->email,
+                    'full_name' => $request->full_name,
+                    'device_id' => $request->device_id,
+                    'listen_from' => $request->listen_from,
+                    'state' => $request->state ?? null ,
+                    'county' => $request->county ?? null,
+                ]);
+                UserPreference::create([
+                    'user_id' => $user->id,
+                    'how_do_you_fish' => $request->how_do_you_fish ?? 'all',
+                    'measurement_unit' => $request->measurement_unit ?? 'imperial',
+                    'chase' => $request->chase ?? null,
+                ]);
+
+                // update fishline_id  by api POST https://rackscore.techvince.com/api/connect-fishline with bearer token
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer '.$request->token,
+                ])->post('https://rackscore.techvince.com/api/connect-fishline'.$request->rackscore_id, [
+                    'fishline_id' => $user->id,
+                ]);
+                if($response->status() != 200) throw new Exception('Failed to update fishline_id', 500);
+
+            }
+            $user->tokens()->delete();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            $user->update([
+                'fcm_token' => $request->fcm_token,
+                'device_id' => $request->device_id,
+                'app_version' => $request->app_version ?? null,
+            ]);
+            return response()->json(['token' => $token,'user' => $user], 200);
+        }catch(QueryException $e){
+            return response()->json(['DB error' => $e->getMessage()], 500);
+        }catch(Exception $e){
+            return response()->json(['error' => $e->getMessage()], $e->getCode()?: 500);
+        }
+    }
+
     public function accountCheck(Request $request): JsonResponse
     {
         try{

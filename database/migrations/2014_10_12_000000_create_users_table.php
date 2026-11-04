@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('personal_site')->nullable();
             $table->string('google_id')->nullable();
             $table->string('facebook_id')->nullable();
+            $table->string('rackscore_id')->nullable();
             $table->string('apple_id')->nullable();
             $table->string('fcm_token')->nullable();
             $table->bigInteger('analysis_count')->default(0);
