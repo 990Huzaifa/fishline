@@ -158,17 +158,17 @@ class PostController extends Controller
                 'ref_data.*.analysis' => 'nullable|string',
                 'ref_data.*.image' => 'nullable|file|image|mimes:jpeg,png,jpg,gif,svg,heic,heif,image/heic,image/heif',
                 'measurements' => 'nullable|array',
-                'antler_points' => 'nullable|array',
-                'deer_age_estimate' => 'nullable|boolean',
                 'growth_projection' => 'nullable|boolean',
                 'estimated_age' => 'nullable|integer',
+                'years_age' => 'nullable',
                 'is_public' => 'nullable|boolean',
                 'is_private' => 'nullable|boolean',
                 'hunt_date' => 'nullable|date',
                 'location' => 'nullable|string',
                 'notes' => 'nullable',
                 'caption' => 'nullable',
-                'harvest_type' => 'nullable|string',
+                'species' => 'nullable|string',
+                'scale' => 'nullable|string',
                 'state' => 'nullable|string',
                 'county' => 'nullable|string',
             ]
@@ -185,17 +185,17 @@ class PostController extends Controller
                 'ref_data.*.analysis' => 'required_with:ref_data|string',
                 'ref_data.*.image' => 'required_with:ref_data|file|image|mimes:jpeg,png,jpg,gif,svg,heic,heif,image/heic,image/heif',
                 'measurements' => 'nullable|array',
-                'antler_points' => 'nullable|array',
-                'deer_age_estimate' => 'nullable|boolean',
                 'growth_projection' => 'nullable|boolean',
-                'estimated_age' => 'required_if:deer_age_estimate,true|integer',
+                'estimated_age' => 'nullable|integer',
+                'years_age' => 'nullable',
                 'is_public' => 'nullable|boolean',
                 'is_private' => 'nullable|boolean',
                 'hunt_date' => 'required|date',
                 'location' => 'required|string',
                 'notes' => 'nullable',
                 'caption' => 'nullable',
-                'harvest_type' => 'nullable|string',
+                'species' => 'nullable|string',
+                'scale' => 'nullable|string',
                 'state' => 'nullable|string',
                 'county' => 'nullable|string',
             ];
@@ -220,10 +220,7 @@ class PostController extends Controller
             'ref_data.*.image.image' => 'Image must be an image for reference data',
             'ref_data.*.image.mimes' => 'Image must be a jpeg, png, jpg, gif, or svg for reference data',
             'measurements.array' => 'Measurements must be an array',
-            'antler_points.array' => 'Antler points must be an array',
-            'deer_age_estimate.boolean' => 'Deer age estimate must be true or false',
             'growth_projection.boolean' => 'Growth projection must be true or false',
-            'estimated_age.required_if' => 'Estimated age is required when deer age estimate is true',
             'estimated_age.integer' => 'Estimated age must be an integer',
             'title.required' => 'Title is required',
             'hunt_date.required' => 'Hunt date is required',
@@ -262,18 +259,17 @@ class PostController extends Controller
             'image' => $image,
             'score' => $request->score ?? null,
             'analysis' => $request->analysis ?? null,
-            'measurements' => json_encode($request->measurements) ?? null,
-            'antler_points' => json_encode($request->antler_points) ?? null,
-            'deer_age_estimate' => $request->deer_age_estimate ?? false,
+            'measurements' => $request->measurements ? json_encode($request->measurements) : null,
             'growth_projection' => $request->growth_projection ?? false,
             'estimated_age' => $request->estimated_age ?? null,
-            'years_age' => json_encode($request->years_age) ?? null,
+            'years_age' => $request->years_age ? json_encode($request->years_age) : null,
             'is_public' => $request->is_public ?? false,
             'is_private' => $request->is_private ?? false,
             'caption' => $request->caption ?? null,
             'state' => $request->state ?? $user->state,
             'county' => $request->county ?? $user->county,
-            'harvest_type' => $request->harvest_type ?? null,
+            'species' => $request->species ?? null,
+            'scale' => $request->scale ?? null,
             'hunt_date' => $request->hunt_date ?? null,
             'location' => $request->location ?? null,
             'notes' => $request->notes ?? null,
@@ -382,7 +378,8 @@ class PostController extends Controller
         try {
             $post = Post::select('posts.created_at',
                 'posts.caption',
-                'posts.harvest_type',
+                'posts.species',
+                'posts.scale',
                 'posts.id',
                 'posts.state',
                 'posts.county',
@@ -398,7 +395,12 @@ class PostController extends Controller
                 'posts.score',
                 'posts.analysis',
                 'posts.measurements',
-                'posts.antler_points',
+                'posts.growth_projection',
+                'posts.estimated_age',
+                'posts.years_age',
+                'posts.hunt_date',
+                'posts.location',
+                'posts.notes',
                 'posts.linked_post_id',
                 'users.full_name',
                 'users.avatar',
@@ -416,7 +418,8 @@ class PostController extends Controller
                 $payload['analysis'] = $latest->analysis;
                 $payload['image'] = $latest->image;
                 $payload['measurements'] = $latest->measurements;
-                $payload['antler_points'] = $latest->antler_points;
+                $payload['species'] = $latest->species;
+                $payload['scale'] = $latest->scale;
             }
 
             return response()->json($payload);
@@ -436,16 +439,14 @@ class PostController extends Controller
             // if($post->user_id != $user->id) throw new Exception('Unauthorized',403);
             $validator = Validator::make($request->all(), [
                 'title' => 'required',
-                'state' => 'nullable',
-                'county' => 'nullable',
+                'state' => 'nullable|string',
+                'county' => 'nullable|string',
                 'notes' => 'nullable',
                 'is_trophy' => 'nullable|in:true,false,1,0',
                 'is_public' => 'nullable|in:true,false,1,0',
                 'caption' => 'nullable',
-                'harvest_type' => 'nullable|string',
-                'state' => 'nullable|string',
-                'county' => 'nullable|string',
-                'notes' => 'nullable',
+                'species' => 'nullable|string',
+                'scale' => 'nullable|string',
             ], [
                 'title.required' => 'Title is required',
             ]);
@@ -457,7 +458,8 @@ class PostController extends Controller
                 'county' => $request->county ?? $post->county,
                 'notes' => $request->notes ?? $post->notes,
                 'caption' => $request->caption ?? $post->caption,
-                'harvest_type' => $request->harvest_type ?? $post->harvest_type,
+                'species' => $request->species ?? $post->species,
+                'scale' => $request->scale ?? $post->scale,
             ];
 
             // New logic only when BOTH is_trophy and is_public are sent as true/false
@@ -507,10 +509,13 @@ class PostController extends Controller
             $validator = Validator::make($request->all(), [
                 'title' => 'nullable|string',
                 'caption' => 'nullable',
-                'harvest_type' => 'nullable|string',
+                'species' => 'nullable|string',
+                'scale' => 'nullable|string',
                 'state' => 'nullable|string',
                 'county' => 'nullable|string',
                 'notes' => 'nullable',
+                'location' => 'nullable|string',
+                'hunt_date' => 'nullable|date',
             ], [
             ]);
 
@@ -526,8 +531,11 @@ class PostController extends Controller
             if ($request->exists('caption')) {
                 $updateData['caption'] = $request->caption;
             }
-            if ($request->exists('harvest_type')) {
-                $updateData['harvest_type'] = $request->harvest_type;
+            if ($request->exists('species')) {
+                $updateData['species'] = $request->species;
+            }
+            if ($request->exists('scale')) {
+                $updateData['scale'] = $request->scale;
             }
             if ($request->exists('state')) {
                 $updateData['state'] = $request->state;
@@ -537,6 +545,12 @@ class PostController extends Controller
             }
             if ($request->exists('notes')) {
                 $updateData['notes'] = $request->notes;
+            }
+            if ($request->exists('location')) {
+                $updateData['location'] = $request->location;
+            }
+            if ($request->exists('hunt_date')) {
+                $updateData['hunt_date'] = $request->hunt_date;
             }
 
             if (empty($updateData)) {
@@ -642,17 +656,19 @@ class PostController extends Controller
             'ref_data.*.analysis' => 'required_with:ref_data|string',
             'ref_data.*.image' => 'required_with:ref_data|file|image|mimes:jpeg,png,jpg,gif,svg,heic,heif,image/heic,image/heif',
             'measurements' => 'nullable|array',
-            'antler_points' => 'nullable|array',
-            'deer_age_estimate' => 'nullable|boolean',
             'growth_projection' => 'nullable|boolean',
-            'estimated_age' => 'required_if:deer_age_estimate,true|integer',
+            'estimated_age' => 'nullable|integer',
+            'years_age' => 'nullable',
             'is_public' => 'nullable|boolean',
             'is_private' => 'nullable|boolean',
-
             'caption' => 'nullable',
-            'harvest_type' => 'nullable|string',
+            'species' => 'nullable|string',
+            'scale' => 'nullable|string',
             'state' => 'nullable|string',
             'county' => 'nullable|string',
+            'hunt_date' => 'nullable|date',
+            'location' => 'nullable|string',
+            'notes' => 'nullable',
         ], [
             'image.required' => 'Image is required',
             'image.uploaded' => 'Image must be uploaded',
@@ -673,10 +689,7 @@ class PostController extends Controller
             'ref_data.*.image.image' => 'Image must be an image for reference data',
             'ref_data.*.image.mimes' => 'Image must be a jpeg, png, jpg, gif, or svg for reference data',
             'measurements.array' => 'Measurements must be an array',
-            'antler_points.array' => 'Antler points must be an array',
-            'deer_age_estimate.boolean' => 'Deer age estimate must be true or false',
             'growth_projection.boolean' => 'Growth projection must be true or false',
-            'estimated_age.required_if' => 'Estimated age is required when deer age estimate is true',
             'estimated_age.integer' => 'Estimated age must be an integer',
         ]);
 
@@ -712,18 +725,20 @@ class PostController extends Controller
             'image' => $image,
             'score' => $request->score ?? null,
             'analysis' => $request->analysis ?? null,
-            'measurements' => json_encode($request->measurements) ?? null,
-            'antler_points' => json_encode($request->antler_points) ?? null,
-            'deer_age_estimate' => $request->deer_age_estimate ?? false,
+            'measurements' => $request->measurements ? json_encode($request->measurements) : null,
             'growth_projection' => $request->growth_projection ?? false,
             'estimated_age' => $request->estimated_age ?? null,
-            'years_age' => json_encode($request->years_age) ?? null,
+            'years_age' => $request->years_age ? json_encode($request->years_age) : null,
             'is_public' => $request->is_public ?? false,
             'is_private' => $request->is_private ?? false,
             'caption' => $request->caption ?? null,
             'state' => $request->state ?? $user->state,
             'county' => $request->county ?? $user->county,
-            'harvest_type' => $request->harvest_type ?? null,
+            'species' => $request->species ?? null,
+            'scale' => $request->scale ?? null,
+            'hunt_date' => $request->hunt_date ?? null,
+            'location' => $request->location ?? null,
+            'notes' => $request->notes ?? null,
             'is_trophy' => $is_trophy,
         ]);
         $user->increment('analysis_count');
@@ -821,7 +836,8 @@ class PostController extends Controller
                 'analysis' => $newPost->analysis,
                 'image' => $newPost->image,
                 'measurements' => $newPost->measurements,
-                'antler_points' => $newPost->antler_points,
+                'species' => $newPost->species,
+                'scale' => $newPost->scale,
             ]);
 
             $post->refresh();
@@ -904,7 +920,8 @@ class PostController extends Controller
             $selectFields = [
                 'posts.created_at',
                 'posts.caption',
-                'posts.harvest_type',
+                'posts.species',
+                'posts.scale',
                 'posts.score',
                 'posts.id',
                 'posts.state',

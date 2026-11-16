@@ -306,6 +306,9 @@ class ProfileController extends Controller
             $user->is_delete = true;
             $user->save();
             Auth::logout();
+            // delete all posts and comments.
+            Post::where('user_id', $user->id)->delete();
+            Comment::where('user_id', $user->id)->delete();
             return response()->json([
                 'message' => 'Account marked for deletion successfully'
             ]);

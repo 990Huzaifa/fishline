@@ -19,30 +19,26 @@ class Post extends Model
         'comment_count',
         'score',
         'analysis',
-        'is_delete',
-        'is_trophy',
-        'is_public',
-        'is_private',
-        'ref_id',
-        'antler_points',
         'measurements',
-        'deer_age_estimate',
-        'estimated_age',
         'growth_projection',
+        'estimated_age',
         'years_age',
         'comment',
+        'is_public',
+        'is_private',
+        'is_trophy',
+        'is_delete',
         'caption',
         'state',
         'county',
-        'harvest_type',
+        'ref_id',
         'linked_post_id',
-
-        // new fields
         'hunt_date',
+        'species',
+        'scale',
         'notes',
         'location',
-
-        'created_at'
+        'created_at',
     ];
 
     public function reports()

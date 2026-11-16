@@ -25,7 +25,8 @@ class HeatMapController extends Controller
             $selectFields = [
                     'posts.created_at',
                     'posts.caption',
-                    'posts.harvest_type',
+                    'posts.species',
+                    'posts.scale',
                     'posts.id',
                     'posts.state',
                     'posts.county',
