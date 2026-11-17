@@ -69,9 +69,9 @@ Route::prefix('admin')->group(function () {
 
 Route::get('leaderboard', [HomeController::class, 'leaderboard']);
 Route::post('signin-with-rackscore', [AuthController::class, 'signinWithRackscore']);   
-Route::get('delete-user-account', [AuthController::class, 'deleteUserAccount']);
 Route::middleware(['auth:sanctum'])->group(function () {
-
+    
+        Route::put('delete-account', [AuthController::class, 'deleteUserAccount']);
         Route::post('get-location', [AuthController::class,'location']);
         Route::post('listen-from', [AuthController::class, 'listenFrom']);
         Route::post('change-password', [AuthController::class, 'changePassword']);

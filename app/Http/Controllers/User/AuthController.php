@@ -579,10 +579,13 @@ class AuthController extends Controller
 
 
 
-    // delete user account for test
 
     public function deleteUserAccount(Request $request): JsonResponse
     {
-        return response()->json(['message' => 'User account deleted successfully'], 200);
+        $user = Auth::user();
+        $user->delete();
+        return response()->json([
+            'message' => 'User account deleted successfully',
+        ], 200);
     }
 }
