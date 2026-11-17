@@ -196,6 +196,7 @@ class AuthController extends Controller
                     'fcm_token' => $request->fcm_token,
                     'state' => $request->state ?? null ,
                     'county' => $request->county ?? null,
+                    'listen_from' => $request->listen_from ?? null,
                 ]);
                 UserPreference::create([
                     'user_id' => $user->id,
@@ -213,6 +214,7 @@ class AuthController extends Controller
                 'google_id' => $request->google_id ?? null,
                 'apple_id' => $request->apple_id ?? null,
                 'facebook_id' => $request->facebook_id ?? null,
+                'listen_from' => $request->listen_from ?? null,
                 'last_login_at' => now(),
             ]);
 
